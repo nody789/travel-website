@@ -42,7 +42,7 @@ export default async function AdminCategoriesPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categories.map((cat) => (
+            {categories.map((cat: typeof categories[number]) => (
               <TableRow key={cat.id}>
                 <TableCell className="font-medium">{cat.name}</TableCell>
                 <TableCell className="text-xl">{cat.icon}</TableCell>
