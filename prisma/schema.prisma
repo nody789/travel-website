@@ -1,0 +1,156 @@
+// prisma/schema.prisma
+// 這個檔案定義了所有的資料表結構
+// 修改這個檔案後，執行 npx prisma migrate dev 才會真正更新資料庫
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 使用者角色：一般會員或管理員
+enum Role {
+  USER
+  ADMIN
+}
+
+// ─── 使用者 ───────────────────────────────────────────────
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  password      String?   // Email 登入才有，社群登入沒有密碼
+  role          Role      @default(USER)
+  emailVerified DateTime?
+  // 關聯：一個使用者有多個 accounts、sessions、favorites、reviews
+  accounts      Account[]
+  sessions      Session[]
+  favorites     Favorite[]
+  reviews       Review[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// ─── NextAuth.js 必要資料表 ────────────────────────────────
+// 這三個資料表是 NextAuth.js + Prisma Adapter 需要的，不要修改結構
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String                          // google、github、credentials
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Cascade：使用者刪除時，相關的 account 也一起刪除
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── 分類 ─────────────────────────────────────────────────
+model Category {
+  id           String        @id @default(cuid())
+  name         String                              // 例：歷史古蹟
+  icon         String                              // 例：🏛️
+  slug         String        @unique               // 例：historic（URL 用）
+  destinations Destination[]
+}
+
+// ─── 目的地 ───────────────────────────────────────────────
+model Destination {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String     @db.Text                 // 長文用 Text，不限長度
+  location    String
+  coverImage  String
+  rating      Float      @default(0)              // 快取的平均評分
+  reviewCount Int        @default(0)              // 快取的評論數
+  isPublished Boolean    @default(false)          // false = 草稿，不會顯示在前台
+  categoryId  String
+  category    Category   @relation(fields: [categoryId], references: [id])
+  favorites   Favorite[]
+  reviews     Review[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// ─── 收藏 ─────────────────────────────────────────────────
+model Favorite {
+  id            String      @id @default(cuid())
+  userId        String
+  destinationId String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+
+  @@unique([userId, destinationId])               // 同一使用者不能重複收藏同一目的地
+}
+
+// ─── 評論 ─────────────────────────────────────────────────
+model Review {
+  id            String      @id @default(cuid())
+  userId        String
+  destinationId String
+  rating        Int                               // 1-5 分
+  comment       String      @db.Text
+  isApproved    Boolean     @default(false)       // 需管理員審核後才顯示
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([userId, destinationId])               // 同一使用者對同一目的地只能留一則評論
+}
+
+// ─── 首頁輪播 Banner ──────────────────────────────────────
+model Banner {
+  id        String   @id @default(cuid())
+  title     String                              // 主標題
+  subtitle  String?                             // 副標題（可選）
+  image     String                              // 圖片 URL
+  link      String?                             // 點擊後跳轉連結（可選）
+  order     Int      @default(0)               // 排列順序，數字越小越前
+  isActive  Boolean  @default(true)            // false = 隱藏不顯示
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── 活動/事件 ───────────────────────────────────────────
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  image       String                            // 活動封面圖
+  startDate   DateTime                          // 活動開始時間
+  endDate     DateTime                          // 活動結束時間
+  location    String?                           // 活動地點（可選）
+  isActive    Boolean  @default(true)           // false = 隱藏不顯示
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

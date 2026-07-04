@@ -1,0 +1,25 @@
+# 依賴套件（不 commit，部署時重新安裝）
+node_modules
+
+# 環境變數（絕對不能 commit，含 API Key 和密碼）
+.env
+.env.local
+.env.production
+
+# Next.js build 輸出
+.next
+out
+
+# Prisma 產生的 client（build 時重新產生）
+/app/generated/prisma
+
+# TypeScript
+tsconfig.tsbuildinfo
+
+# 系統檔
+.DS_Store
+Thumbs.db
+
+# 編輯器
+.vscode
+.idea
