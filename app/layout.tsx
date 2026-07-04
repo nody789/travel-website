@@ -9,6 +9,7 @@ import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 import Providers from '@/components/Providers'
 
 const geist = Geist({
@@ -36,12 +37,11 @@ export default function RootLayout({
         {/* Providers 包含 SessionProvider（讓 Client Component 可以用 useSession）
             和 Toaster（全域 toast 通知） */}
         <Providers>
-          {/* Navbar 在每個頁面都顯示 */}
           <Navbar />
-          {/* 主內容：flex-1 讓內容撐滿剩餘高度 */}
           <main className="flex-1">
             {children}
           </main>
+          <Footer />
         </Providers>
       </body>
     </html>
