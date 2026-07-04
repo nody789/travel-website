@@ -12,6 +12,7 @@ import { MapPin, Star, MessageCircle, Tag, ChevronRight, Home, CheckCircle2, Use
 import { Badge } from '@/components/ui/badge'
 import ReviewCard from '@/components/ReviewCard'
 import FavoriteButton from '@/components/FavoriteButton'
+import AddToTripButton from '@/components/AddToTripButton'
 import ReviewForm from '@/components/ReviewForm'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
@@ -353,13 +354,15 @@ export default async function DestinationDetailPage({ params }: PageProps) {
                   </div>
                 </div>
 
-                {/* 收藏按鈕（展示用，FavoriteButton 已在 Hero 放了，這裡給 sidebar 用） */}
-                <div className="mt-5 pt-4 border-t">
+                {/* 收藏按鈕（sidebar 大按鈕版） */}
+                <div className="mt-5 pt-4 border-t space-y-2">
                   <FavoriteButton
                     destinationId={destination.id}
                     favoriteId={userFavorite?.id}
                     variant="full"
                   />
+                  {/* 加入行程規劃按鈕（Client Component） */}
+                  <AddToTripButton destinationId={destination.id} />
                 </div>
               </div>
 

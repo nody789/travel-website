@@ -4,7 +4,7 @@
 
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
-import { Globe, Heart, User, LogOut, Settings, Menu, X, CalendarDays } from 'lucide-react'
+import { Globe, Heart, User, LogOut, Settings, Menu, X, Route } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -47,7 +47,10 @@ export default function Navbar() {
     { href: '/', label: '首頁' },
     { href: '/destinations', label: '探索目的地' },
     { href: '/events', label: '活動' },
-    ...(session ? [{ href: '/favorites', label: '收藏', icon: Heart }] : []),
+    ...(session ? [
+      { href: '/favorites', label: '收藏', icon: Heart },
+      { href: '/trips', label: '我的行程', icon: Route },
+    ] : []),
   ]
 
   return (
@@ -72,13 +75,22 @@ export default function Navbar() {
               活動
             </Link>
             {session && (
-              <Link
-                href="/favorites"
-                className="flex items-center gap-1 text-gray-600 hover:text-sky-600 transition-colors text-sm font-medium"
-              >
-                <Heart className="h-4 w-4" />
-                收藏
-              </Link>
+              <>
+                <Link
+                  href="/favorites"
+                  className="flex items-center gap-1 text-gray-600 hover:text-sky-600 transition-colors text-sm font-medium"
+                >
+                  <Heart className="h-4 w-4" />
+                  收藏
+                </Link>
+                <Link
+                  href="/trips"
+                  className="flex items-center gap-1 text-gray-600 hover:text-sky-600 transition-colors text-sm font-medium"
+                >
+                  <Route className="h-4 w-4" />
+                  我的行程
+                </Link>
+              </>
             )}
           </div>
 
@@ -109,6 +121,10 @@ export default function Navbar() {
                     <DropdownMenuItem render={<Link href="/profile" />} className="flex items-center gap-2 cursor-pointer">
                       <User className="h-4 w-4" />
                       個人資料
+                    </DropdownMenuItem>
+                    <DropdownMenuItem render={<Link href="/trips" />} className="flex items-center gap-2 cursor-pointer">
+                      <Route className="h-4 w-4" />
+                      我的行程
                     </DropdownMenuItem>
                     {session.user?.role === 'ADMIN' && (
                       <DropdownMenuItem render={<Link href="/admin" />} className="flex items-center gap-2 cursor-pointer">

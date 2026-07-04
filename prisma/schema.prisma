@@ -30,6 +30,7 @@ model User {
   sessions      Session[]
   favorites     Favorite[]
   reviews       Review[]
+  trips         Trip[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -94,10 +95,11 @@ model Destination {
   isPublished Boolean    @default(false)          // false = 草稿，不會顯示在前台
   categoryId  String
   category    Category   @relation(fields: [categoryId], references: [id])
-  favorites   Favorite[]
-  reviews     Review[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  favorites        Favorite[]
+  reviews          Review[]
+  tripDestinations TripDestination[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 }
 
 // ─── 收藏 ─────────────────────────────────────────────────
@@ -126,6 +128,32 @@ model Review {
   updatedAt     DateTime    @updatedAt
 
   @@unique([userId, destinationId])               // 同一使用者對同一目的地只能留一則評論
+}
+
+// ─── 行程規劃 ─────────────────────────────────────────────
+model Trip {
+  id           String           @id @default(cuid())
+  userId       String
+  title        String                              // 行程名稱，例：2026 日本之旅
+  description  String?                             // 行程描述（選填）
+  isPublic     Boolean          @default(false)   // 公開分享（預留）
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  destinations TripDestination[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model TripDestination {
+  id            String      @id @default(cuid())
+  tripId        String
+  destinationId String
+  order         Int         @default(0)           // 在行程中的排列順序
+  note          String?                            // 備注（選填，例：推薦春天去）
+  trip          Trip        @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+
+  @@unique([tripId, destinationId])               // 同一行程不能重複加入同一目的地
 }
 
 // ─── 首頁輪播 Banner ──────────────────────────────────────

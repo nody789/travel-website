@@ -17,7 +17,10 @@ export default auth((req) => {
   const isAdmin = session?.user.role === 'ADMIN'
 
   // 未登入 → 導向登入頁，並帶上原本要去的路徑（登入後自動跳回）
-  const needsLogin = pathname.startsWith('/favorites') || pathname.startsWith('/profile')
+  const needsLogin =
+    pathname.startsWith('/favorites') ||
+    pathname.startsWith('/profile') ||
+    pathname.startsWith('/trips')
   if (needsLogin && !isLoggedIn) {
     const loginUrl = new URL('/auth/signin', req.url)
     loginUrl.searchParams.set('callbackUrl', pathname)
@@ -38,5 +41,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ['/favorites/:path*', '/profile/:path*', '/admin/:path*'],
+  matcher: ['/favorites/:path*', '/profile/:path*', '/trips/:path*', '/admin/:path*'],
 }
