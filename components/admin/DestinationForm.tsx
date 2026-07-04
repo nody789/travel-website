@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import ImageUpload from '@/components/admin/ImageUpload'
 import type { Category, Destination } from '@/types'
 
 interface DestinationFormProps {
@@ -149,28 +150,13 @@ export default function DestinationForm({ categories, destination }: Destination
         />
       </div>
 
-      {/* 封面圖片 URL */}
-      <div className="space-y-1.5">
-        <Label htmlFor="coverImage">封面圖片 URL *</Label>
-        <Input
-          id="coverImage"
-          type="url"
-          value={form.coverImage}
-          onChange={(e) => setForm((prev) => ({ ...prev, coverImage: e.target.value }))}
-          placeholder="https://images.unsplash.com/..."
-          required
-        />
-        {form.coverImage && (
-          // 預覽圖片
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={form.coverImage}
-            alt="預覽"
-            className="mt-2 h-40 w-full object-cover rounded-lg border"
-            onError={(e) => (e.currentTarget.style.display = 'none')}
-          />
-        )}
-      </div>
+      {/* 封面圖片：可貼 URL 或上傳本地檔案（上傳後取得 Cloudinary URL） */}
+      <ImageUpload
+        value={form.coverImage}
+        onChange={(url) => setForm((prev) => ({ ...prev, coverImage: url }))}
+        label="封面圖片"
+        required
+      />
 
       {/* 是否上架 */}
       <div className="flex items-center gap-3">

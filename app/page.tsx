@@ -59,7 +59,7 @@ export default async function HomePage() {
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
           <HeroBanner banners={banners} />
           <div className="mt-5 max-w-lg mx-auto">
-            <Suspense><SearchBar placeholder="搜尋目的地、地點..." /></Suspense>
+            <Suspense><SearchBar placeholder="搜尋目的地、地點..." showPreview /></Suspense>
           </div>
         </div>
       ) : (
@@ -79,7 +79,7 @@ export default async function HomePage() {
               發現隱藏的美景，參考真實旅客評論，打造屬於你的完美旅程
             </p>
             <div className="max-w-lg mx-auto">
-              <Suspense><SearchBar placeholder="搜尋目的地、地點..." className="text-gray-900" /></Suspense>
+              <Suspense><SearchBar placeholder="搜尋目的地、地點..." className="text-gray-900" showPreview /></Suspense>
             </div>
           </div>
         </section>

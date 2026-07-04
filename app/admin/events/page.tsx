@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import axios from 'axios'
 import Image from 'next/image'
 import dayjs from 'dayjs'
+import ImageUpload from '@/components/admin/ImageUpload'
 
 interface Event {
   id: string
@@ -172,11 +173,11 @@ export default function AdminEventsPage() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">封面圖片 URL *</label>
-              <Input
+              <ImageUpload
                 value={form.image}
-                onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                placeholder="https://..."
+                onChange={(url) => setForm((f) => ({ ...f, image: url }))}
+                label="封面圖片"
+                required
               />
             </div>
             <div>

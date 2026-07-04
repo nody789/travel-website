@@ -9,6 +9,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 import { authConfig } from '@/lib/auth.config'
+import type { Role } from '@/types'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,  // 繼承 auth.config.ts 的所有設定
@@ -48,4 +49,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+
+  // 覆寫 callbacks，加入 trigger === 'update' 的處理
+  // 當前端呼叫 update()（如更新個人資料後），重新從 DB 讀取最新 name/image 更新 JWT
+  callbacks: {
+    async jwt({ token, user, trigger }) {
+      if (user) {
+        token.id = user.id
+        token.role = (user as { role: Role }).role
+      }
+      // trigger === 'update' 在 useSession().update() 被呼叫時觸發
+      // 重新從資料庫讀取資料，讓 Navbar 等元件顯示最新名稱和頭像
+      if (trigger === 'update' && token.id) {
+        const freshUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { name: true, email: true, image: true },
+        })
+        if (freshUser) {
+          token.name = freshUser.name
+          token.email = freshUser.email
+          token.picture = freshUser.image
+        }
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string
+        session.user.role = token.role as Role
+      }
+      return session
+    },
+  },
 })
